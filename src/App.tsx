@@ -6,47 +6,65 @@ import './App.css';
 /**
  * State declaration for <App />
  */
-interface IState {
+interface IState 
+{
   data: ServerRespond[],
+  showGraph: boolean, //this states the showGraph property to be a Boolean
 }
 
 /**
  * The parent element of the react app.
  * It renders title, button and Graph react element.
  */
-class App extends Component<{}, IState> {
-  constructor(props: {}) {
+class App extends Component<{}, IState> 
+{
+  constructor(props: {}) 
+  {
     super(props);
 
-    this.state = {
+    this.state = 
+    {
       // data saves the server responds.
       // We use this state to parse data down to the child element (Graph) as element property
       data: [],
+      showGraph = false, //defining the initial state of the graph as hidden to show when the user clicks ‘Start Streaming Data’
     };
   }
 
   /**
    * Render Graph react component with state.data parse as property data
    */
-  renderGraph() {
-    return (<Graph data={this.state.data}/>)
+  renderGraph() 
+  {
+    if (this.state.showGraph) //this ensure that the graph doesn’t render until a user clicks the ‘Start Streaming’ button
+    {
+      return (<Graph data={this.state.data}/>) 
+    }
   }
 
   /**
    * Get new data from server and update the state with the new data
    */
-  getDataFromServer() {
-    DataStreamer.getData((serverResponds: ServerRespond[]) => {
-      // Update the state by creating a new array of data that consists of
-      // Previous data in the state and the new data from server
-      this.setState({ data: [...this.state.data, ...serverResponds] });
-    });
-  }
+  getDataFromServer() 
+  {
+    let x = 0;
+    const interval = setInterval(() => {
+        DataStreamer.getData((serverResponds: ServerRespond[]) => {
+            this.setState({data: serverResponds, showGraph: true});
+        });
+        x++;
+        if (x > 1000) 
+        {
+            clearInterval(interval);
+        }
+    }, 100);
+}
 
   /**
    * Render the App react component
    */
-  render() {
+  render() 
+  {
     return (
       <div className="App">
         <header className="App-header">
